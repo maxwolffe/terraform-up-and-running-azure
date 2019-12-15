@@ -1,5 +1,16 @@
 variable "prefix" {
-  default = "mwolffe"
+  default     = "mwolffe"
+  description = "The prefix for all of the resources we'll create"
+}
+
+# Do not put a default here, this must be provided at runtime.
+variable "vm_password" {
+  description = "The password for the VM we'll create"
+}
+
+variable "server_port" {
+  default     = 8080
+  description = "The port on which our sample web application runs."
 }
 
 # Configure the Azure Provider
@@ -29,6 +40,7 @@ resource "azurerm_subnet" "internal" {
   address_prefix       = "10.0.2.0/24"
 }
 
+# Creates a public IP which we'll use to access this resource.
 resource "azurerm_public_ip" "main" {
   name                = "${var.prefix}-public-ip"
   location            = "${azurerm_resource_group.main.location}"
@@ -36,6 +48,8 @@ resource "azurerm_public_ip" "main" {
   allocation_method   = "Static"
 }
 
+# Creates a security group, which is affixed to your VM's NIC.
+# This is probably insecure and worth thinking about prior to using in a real system.
 resource "azurerm_network_security_group" "main" {
   name                = "${var.prefix}-security-group"
   location            = "${azurerm_resource_group.main.location}"
@@ -95,11 +109,12 @@ resource "azurerm_virtual_machine" "main" {
   os_profile {
     computer_name  = "hostname"
     admin_username = "mwolffe"
-    admin_password = "SecretPassword!"
-    custom_data    = <<-EOF
+    admin_password = "${var.vm_password}"
+    # This creates a very lightweight web server listening on port 8080
+    custom_data = <<-EOF
               #!/bin/bash
               echo "Hello, World" > index.html
-              nohup busybox httpd -f -p 8080 &
+              nohup busybox httpd -f -p ${var.server_port} &
               EOF
   }
   os_profile_linux_config {
@@ -107,6 +122,7 @@ resource "azurerm_virtual_machine" "main" {
   }
 }
 
+# This outputs the public IP address we defined above so we can access our web server.
 output "public-ip" {
   value = "${azurerm_public_ip.main.ip_address}"
 }
