@@ -1,6 +1,6 @@
 # Terraform Up And Running - Azure
 
-A short tutorial for using [Terraform](terraform.io) in Azure. This project is an attempt to port the code from [terraform-up-and-running-code](https://github.com/brikis98/terraform-up-and-running-code) to Azure.
+A short tutorial for using [Terraform](http://terraform.io) in Azure. This project is an attempt to port the code from [terraform-up-and-running-code](https://github.com/brikis98/terraform-up-and-running-code) to Azure.
 
 ## What is Terraform?
 
